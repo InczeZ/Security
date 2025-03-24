@@ -19,12 +19,16 @@ class Window(Frame):
         button_frame = Frame(self.master)
         button_frame.grid(row=0, column=0, pady=10, padx=10, sticky="w")
 
-        Button(button_frame, text="Open Image", command=self.open_image).grid(row=0, column=0, padx=5)
-        Button(button_frame, text="Run Tests", command=self.run_tests).grid(row=0, column=1, padx=5)
-        Button(button_frame, text="About", command=self.show_help).grid(row=0, column=2, padx=5)
+        Button(button_frame, text="Open Image",
+               command=self.open_image).grid(row=0, column=0, padx=5)
+        Button(button_frame, text="Run Tests", command=self.run_tests).grid(
+            row=0, column=1, padx=5)
+        Button(button_frame, text="About", command=self.show_help).grid(
+            row=0, column=2, padx=5)
 
         # Canvas for images or landing page
-        self.canvas = Canvas(self.master, width=800, height=600, bg="lightgray")
+        self.canvas = Canvas(self.master, width=800,
+                             height=600, bg="lightgray")
         self.canvas.grid(row=1, column=0, padx=10, pady=10)
 
         # Frame for metadata display
@@ -45,22 +49,25 @@ class Window(Frame):
         for widget in self.info_frame.winfo_children():
             widget.destroy()
 
-        Label(self.info_frame, text="Instructions:", font=("Arial", 14, "bold")).grid(row=0, column=0, sticky="w")
+        Label(self.info_frame, text="Instructions:", font=(
+            "Arial", 14, "bold")).grid(row=0, column=0, sticky="w")
         Label(self.info_frame, text="1. Click 'Open Image' to load a CIFF file.\n"
                                     "2. Use 'Run Tests' to validate all test images.\n"
                                     "3. Click 'About' for application info.",
               justify="left", wraplength=250).grid(row=1, column=0, sticky="w")
 
     def show_help(self):
-        messagebox.showinfo("About", "CIFF Viewer\nVersion 1.0\nSimple image viewer for CIFF files.")
+        messagebox.showinfo(
+            "About", "CIFF Viewer\nVersion 1.0\nSimple image viewer for CIFF files.")
 
     def open_image(self):
-        file_path = filedialog.askopenfilename(title="Select a CIFF Image", filetypes=[("CIFF Files", "*.ciff")])
+        file_path = filedialog.askopenfilename(
+            title="Select a CIFF Image", filetypes=[("CIFF Files", "*.ciff")])
         if not file_path:
             return
 
         try:
-            ciff_image = CIFF.parse_ciff_file(file_path) # PLUSZ: C++ parser
+            ciff_image = CIFF.parse_ciff_file(file_path)  # PLUSZ: C++ parser
             if not ciff_image.is_valid:
                 raise ValueError("Invalid CIFF image!")
 
@@ -85,21 +92,29 @@ class Window(Frame):
         for widget in self.info_frame.winfo_children():
             widget.destroy()
 
-        Label(self.info_frame, text="Image Information", font=("Arial", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=5)
+        Label(self.info_frame, text="Image Information", font=(
+            "Arial", 14, "bold")).grid(row=0, column=0, columnspan=2, pady=5)
 
-        Label(self.info_frame, text="Dimensions:").grid(row=1, column=0, sticky="w", pady=2)
-        Label(self.info_frame, text=f"{ciff_image.width} x {ciff_image.height}").grid(row=1, column=1, sticky="w", pady=2)
+        Label(self.info_frame, text="Dimensions:").grid(
+            row=1, column=0, sticky="w", pady=2)
+        Label(self.info_frame, text=f"{ciff_image.width} x {ciff_image.height}").grid(
+            row=1, column=1, sticky="w", pady=2)
 
-        Label(self.info_frame, text="Caption:").grid(row=2, column=0, sticky="w", pady=2)
-        Label(self.info_frame, text=ciff_image.caption, wraplength=250, justify="left").grid(row=2, column=1, sticky="w", pady=2)
+        Label(self.info_frame, text="Caption:").grid(
+            row=2, column=0, sticky="w", pady=2)
+        Label(self.info_frame, text=ciff_image.caption, wraplength=250,
+              justify="left").grid(row=2, column=1, sticky="w", pady=2)
 
-        Label(self.info_frame, text="Tags:").grid(row=3, column=0, sticky="nw", pady=2)
+        Label(self.info_frame, text="Tags:").grid(
+            row=3, column=0, sticky="nw", pady=2)
 
         # Handling long tags
         max_tag_length = 50
         for i, tag in enumerate(ciff_image.tags):
-            truncated_tag = (tag[:max_tag_length] + "...") if len(tag) > max_tag_length else tag
-            Label(self.info_frame, text=truncated_tag, wraplength=250, justify="left").grid(row=3 + i, column=1, sticky="w", pady=2)
+            truncated_tag = (tag[:max_tag_length] +
+                             "...") if len(tag) > max_tag_length else tag
+            Label(self.info_frame, text=truncated_tag, wraplength=250,
+                  justify="left").grid(row=3 + i, column=1, sticky="w", pady=2)
 
     def run_tests(self):
         test_window = Toplevel(self.master)
@@ -107,7 +122,8 @@ class Window(Frame):
         test_window.geometry("600x400")
 
         scrollbar = Scrollbar(test_window, orient=VERTICAL)
-        result_text = Text(test_window, wrap="none", yscrollcommand=scrollbar.set)
+        result_text = Text(test_window, wrap="none",
+                           yscrollcommand=scrollbar.set)
         scrollbar.config(command=result_text.yview)
         scrollbar.pack(side="right", fill="y")
         result_text.pack(side="left", fill="both", expand=True)
@@ -116,16 +132,21 @@ class Window(Frame):
         try:
             for test_vector in sorted(
                 [f for f in listdir(test_vectors_path)],
-                key=lambda f: int(f.replace("test", "").rsplit(extsep, 1)[0].rsplit(None, 1)[-1])
+                key=lambda f: int(f.replace("test", "").rsplit(
+                    extsep, 1)[0].rsplit(None, 1)[-1])
             ):
                 try:
-                    ciff_file = CIFF.parse_ciff_file(join(test_vectors_path, test_vector))
+                    ciff_file = CIFF.parse_ciff_file(
+                        join(test_vectors_path, test_vector))
                     if ciff_file.is_valid:
-                        result_text.insert(END, f"{test_vector} is detected as VALID\n")
+                        result_text.insert(
+                            END, f"{test_vector} is detected as VALID\n")
                     else:
-                        result_text.insert(END, f"{test_vector} is detected as INVALID\n")
+                        result_text.insert(
+                            END, f"{test_vector} is detected as INVALID\n")
                 except Exception as e:
-                    result_text.insert(END, f"Error processing {test_vector}: {e}\n")
+                    result_text.insert(
+                        END, f"Error processing {test_vector}: {e}\n")
         except Exception as e:
             messagebox.showerror("Error", f"Failed to run tests:\n{e}")
 
