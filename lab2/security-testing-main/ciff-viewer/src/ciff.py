@@ -249,8 +249,9 @@ class CIFF:
                 # HINT: check out the "q" format specifier!
                 # HINT: Does it fit our purposes?
                 new_ciff.height = struct.unpack("Q", height)[0]
-                # the header size must be in [0, 2^64 - 1]
-                if new_ciff.height < 0 or new_ciff.height > (2**64)-1:
+                # the header size must be in [0, 2^32 - 1]
+                # 2 ^ 64 - 1 is ULONG_MAX
+                if new_ciff.height < 0 or new_ciff.height > (2**32)-1:
                     raise Exception("Invalid hight value")
 
                 # TODO: maybe something is missing here
