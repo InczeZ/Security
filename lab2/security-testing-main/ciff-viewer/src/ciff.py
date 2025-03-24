@@ -216,17 +216,21 @@ class CIFF:
                 # unpack returns a list
                 new_ciff.header_size = struct.unpack("Q", h_size)[0]
 
-                # TODO: maybe something is missing here
+                # the header size must be in (0, 2^32 - 1]
+                # 2 ^ 64 - 1 is ULONG_MAX
+                if new_ciff.header_size < 0 or new_ciff.header_size > (2**32)-1 or new_ciff.header_size == 0:
+                    raise Exception("Invalid header size")
 
                 # read the content size
                 c_size = ciff_file.read(8)
                 if len(c_size) != 8:
                     raise Exception("Invalid content size")
+
                 bytes_read += 8
                 # interpret the bytes as an 8-byte-long integer
                 new_ciff.content_size = struct.unpack("Q", c_size)[0]
-                # the content size must be in [0, 2^64 - 1]
-                if new_ciff.content_size < 0 or new_ciff.content_size > (2**64)-1:
+                # the content size must be in [0, 2^32 - 1]
+                if new_ciff.content_size < 0 or new_ciff.content_size > (2**32)-1:
                     raise Exception("Invalid content size")
 
                 # read the width
