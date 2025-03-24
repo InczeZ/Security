@@ -1,24 +1,25 @@
 import struct
-from typing import List, Tuple, Any
+from typing import List, Tuple
 import logging
 
 
 logger = logging.getLogger(__name__)
+
 
 class CIFF:
     """
     Holds data of a CIFF image
     """
 
-    def __init__(self, 
-                 magic_chars = "CIFF", 
-                 header_size_long = 0, 
-                 content_size_long = 0, 
-                 width_long = 0, 
-                 height_long = 0, 
-                 caption_string = "", 
-                 tags_list = None, 
-                 pixels_list = None
+    def __init__(self,
+                 magic_chars: str = "CIFF",
+                 header_size_long: int = 0,
+                 content_size_long: int = 0,
+                 width_long: int = 0,
+                 height_long: int = 0,
+                 caption_string: str = "",
+                 tags_list: List[str] = None,
+                 pixels_list: List[Tuple[int, int, int]] = None
                  ):
         """
         Constructor for CIFF images
@@ -38,25 +39,25 @@ class CIFF:
         self._width = width_long
         self._height = height_long
         self._caption = caption_string
-        
+
         if tags_list is None:
             self._tags = []
         else:
             self._tags = tags_list
-        
+
         if pixels_list is None:
             self._pixels = []
         else:
             self._pixels = pixels_list
 
-        self._is_valid = True
+        self._is_valid: bool = True
 
     #
     # Properties
     #
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
         """
         A flag indicating whether the the CIFF image conforms
         with the specification or not
@@ -66,11 +67,11 @@ class CIFF:
         return self._is_valid
 
     @is_valid.setter
-    def is_valid(self, value):
+    def is_valid(self, value: bool) -> None:
         self._is_valid = value
 
     @property
-    def magic(self):
+    def magic(self) -> str:
         """
         The parsed magic characters
 
@@ -79,11 +80,11 @@ class CIFF:
         return self._magic
 
     @magic.setter
-    def magic(self, value):
+    def magic(self, value: str):
         self._magic = value
 
     @property
-    def header_size(self):
+    def header_size(self) -> int:
         """
         The parsed header size
 
@@ -92,11 +93,11 @@ class CIFF:
         return self._header_size
 
     @header_size.setter
-    def header_size(self, value):
+    def header_size(self, value: int):
         self._header_size = value
 
     @property
-    def content_size(self):
+    def content_size(self) -> int:
         """
         The parsed content size
 
@@ -105,14 +106,14 @@ class CIFF:
         return self._content_size
 
     @content_size.setter
-    def content_size(self, value):
+    def content_size(self, value: int) -> None:
         """
         Setter function for the content size
         """
         self._content_size = value
 
     @property
-    def width(self):
+    def width(self) -> int:
         """
         The parsed width of the image
 
@@ -121,11 +122,11 @@ class CIFF:
         return self._width
 
     @width.setter
-    def width(self, value):
+    def width(self, value: int) -> None:
         self._width = value
 
     @property
-    def height(self):
+    def height(self) -> int:
         """
         The parsed height of the image
 
@@ -134,11 +135,11 @@ class CIFF:
         return self._height
 
     @height.setter
-    def height(self, value):
+    def height(self, value: int) -> None:
         self._height = value
 
     @property
-    def caption(self):
+    def caption(self) -> str:
         """
         The parsed image caption
 
@@ -147,11 +148,11 @@ class CIFF:
         return self._caption
 
     @caption.setter
-    def caption(self, value):
+    def caption(self, value: str) -> None:
         self._caption = value
 
     @property
-    def tags(self):
+    def tags(self) -> List[str]:
         """
         The parsed list of tags
 
@@ -160,11 +161,11 @@ class CIFF:
         return self._tags
 
     @tags.setter
-    def tags(self, value):
+    def tags(self, value: List[str]) -> None:
         self._tags = value
 
     @property
-    def pixels(self):
+    def pixels(self) -> List[Tuple[int, int, int]]:
         """
         The parsed pixels
 
@@ -173,7 +174,7 @@ class CIFF:
         return self._pixels
 
     @pixels.setter
-    def pixels(self, value):
+    def pixels(self, value: List[Tuple[int, int, int]]) -> None:
         self._pixels = value
 
     #
@@ -214,8 +215,8 @@ class CIFF:
                 # interpret the bytes as an 8-byte-long integer
                 # unpack returns a list
                 new_ciff.header_size = struct.unpack("Q", h_size)[0]
-                
-                #TODO: maybe something is missing here
+
+                # TODO: maybe something is missing here
 
                 # read the content size
                 c_size = ciff_file.read(8)
@@ -252,13 +253,14 @@ class CIFF:
                 if new_ciff.height < 0 or new_ciff.height > (2**64)-1:
                     raise Exception("Invalid hight value")
 
-                #TODO: maybe something is missing here
+                # TODO: maybe something is missing here
 
                 # read the name of the image character by character
                 caption = ""
                 c = ciff_file.read(1)
                 if len(c) != 1:
-                    raise Exception(f"No more character left in caption. Caption is: {caption}")
+                    raise Exception(
+                        f"No more character left in caption. Caption is: {caption}")
                 bytes_read += 1
                 char = c.decode('ascii')
                 # read until the first '\n' (caption cannot contain '\n')
@@ -268,7 +270,8 @@ class CIFF:
                     # read next character
                     c = ciff_file.read(1)
                     if len(c) != 1:
-                        raise Exception(f"No more character left in caption. Caption is: {caption}")
+                        raise Exception(
+                            f"No more character left in caption. Caption is: {caption}")
                     bytes_read += 1
                     char = c.decode('ascii')
                 new_ciff.caption = caption
@@ -306,7 +309,8 @@ class CIFF:
                     if len(c) != 3:
                         raise Exception("Invalid content: Pixel read error")
                     bytes_read += 3
-                    pixel = struct.unpack("BBB", c)  # type: ignore  # generic function that return the correct type in this case
+                    # type: ignore  # generic function that return the correct type in this case
+                    pixel = struct.unpack("BBB", c)
                     new_ciff.pixels.append(pixel)
 
                 # we should have reached the end of the file
